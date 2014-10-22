@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Scraping Tool</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../include/Chart.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/xapiwrapper.min.js"></script>
+
+    <!-- Firebase Imports -->
+    <script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
+    <script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
+    <!--Scraper Import  -->
+    <script src="js/fbscraper.js"></script>
+</head>
+
+<body>
+    <div id="facebook-container">
+        <header>
+            <h1>
+				<img src="../images/logo-facebook.png" alt="QUT Title" width="350"
+					height="100">
+			</h1>
+        </header>
+    </div>
+    <button class="function-loader" type="button" onclick="prepareScrape()">Prepare for scrape!
+    </button>
+    <fb:login-button autologoutlink="true" scope="user_groups,email"> </fb:login-button>
+    <br />
+    <input type="checkbox" id="ignoreDup" value="ignoreDup"> Ignore duplicates?
+    <input type="checkbox" id="postNotif" value="postNotif"> Post scrape notification?
+    <form class="form-wrapper cf">
+        <input type="text" name="groupID" id="groupID" placeholder="Enter Group ID Here...">
+        <button type="button" onclick="FunctionOne().done(FunctionTwo);">Scrape!</button>
+    </form>
+    <div align="center">
+
+    	<div id="scrapped-stats">
+    		<span></span>
+    	</div>
+    	<div id="canvas-holder">
+			<canvas id="chart-area" width="500" height="500" />
+		</div>
+        <!-- 	
+		<p>
+			<strong> Scraping tool has collected:<br />
+			<script>
+			document.write('
+			</strong> '+ postsScraped + ' Posts<br /> ' + likesScraped + ' Likes<br /> ' + commentsScraped + ' Comments <br /> <br />
+			<br /> Exported to Learning Locker for INB302 - Capstone Project
+			Group.');
+			</script>
+		</p>
+
+		<div id="canvas-holder">
+			<canvas id="chart-area" width="500" height="500" />
+		</div>
+
+		<script>
+			var doughnutData = [ {
+				value : 24,
+				color : "#F7464A",
+				highlight : "#FF5A5E",
+				label : "Comments"
+			}, {
+				value : 13,
+				color : "#46BFBD",
+				highlight : "#5AD3D1",
+				label : "Posts"
+			}, {
+				value : 19,
+				color : "#FDB45C",
+				highlight : "#FFC870",
+				label : "Likes"
+			}, {
+				value : 6,
+				color : "#949FB1",
+				highlight : "#A8B3C5",
+				label : "Seen"
+			}
+
+			];
+
+			window.onload = function() {
+				var ctx = document.getElementById("chart-area")
+						.getContext("2d");
+				window.myDoughnut = new Chart(ctx).Doughnut(doughnutData, {
+					responsive : true
+				});
+			};
+		</script> -->
+		
+		
+		<div class="loading-image" style="display: none;">
+			<img src="../images/loading-large.gif" alt="loading icon"/>
+		</div>
+    </div>
+</body>
+
+</html>
