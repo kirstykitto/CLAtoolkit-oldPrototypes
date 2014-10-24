@@ -1,0 +1,456 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!--Stack Exchange learning locker scraper - Uses the social media's api to send information to a lrs
+	Copyright (C) 2014 James Pilkington
+	Copyright (C) 2014 Clinton Redhouse
+	Copyright (C) 2014 Nathan Osborne
+	Copyright (C) 2014 Jarrah Madill-->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Stack Exchange Scrapper</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type='text/javascript' src='https://api.stackexchange.com/js/2.0/all.js'></script>
+    <script type="text/javascript" src="js/xapiwrapper.min.js"></script>
+
+    <!-- Firebase Imports -->
+    <script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
+    <script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
+    <link rel="stylesheet" href="../css/styles.css"> 
+    <script src="../include/Chart.js"></script>
+</head>
+<!--If you are reading this sorry excuse for what ever this is I feel sorry for you. -->
+	<body>
+<script type="text/javascript">
+// This function gets the User Information, Questions, Answers, and Comments from the user base on their stackexchange user ID, and and returns them as a json object
+function apiCall (){
+//User information
+	var userInformation = "https://api.stackexchange.com/2.2/users/" + userNumber.value + "?order=desc&sort=reputation&site=stackoverflow&filter=!9YdnSBVWi&key=gdMB7479Ch9FOArZFhUIvA((";
+	//console.log(userInformation);
+	$.ajax({
+	    url: userInformation,
+	    dataType: "jsonp", 
+	    success: function (returndata)
+	    {
+	        $('.result').html(returndata);
+	        console.log(returndata)
+	        sendUser(returndata);
+	      }  
+	    });
+
+
+//Questions asked by user
+
+
+	var userQuestions = "http://api.stackexchange.com/2.2/users/" + userNumber.value + "/questions?order=desc&pagesize=100&sort=activity&site=stackoverflow&filter=!OfYUQY)D9.ekKk-L_VmchIyZFqQxc3oa5l_kMFE21hH&key=gdMB7479Ch9FOArZFhUIvA((";
+	$.ajax({
+	    url: userQuestions,
+	    dataType: "jsonp", 
+	    success: function (returndata)
+	    {
+	        $('.result').html(returndata);
+	        console.log('1!!');
+	        console.log(returndata)
+	        sendQuestions(returndata); 
+	      }  
+	    });
+
+
+
+//Comments made by user
+
+
+	var userComments = "http://api.stackexchange.com/2.2/users/" + userNumber.value + "/comments?order=desc&sort=creation&site=stackoverflow&filter=!9YdnSOQ1p&key=gdMB7479Ch9FOArZFhUIvA((";
+		//console.log(userComments);
+	$.ajax({
+	    url: userComments,
+	    dataType: "jsonp", 
+	    success: function (returndata)
+	    {
+	        $('.result').html(returndata);
+	        console.log('2!!');
+	        console.log(returndata)
+	        sendComments(returndata);
+	      }  
+	    });
+
+
+
+//Answers by user
+
+
+	var userAnswers = "http://api.stackexchange.com/2.2/users/" + userNumber.value + "/answers?order=desc&sort=activity&site=stackoverflow&filter=!40nvjHa_IEe5LWU4y&key=gdMB7479Ch9FOArZFhUIvA((";
+	    //console.log(userAnswers);
+	$.ajax({
+	    url: userAnswers,
+	    dataType: "jsonp", 
+	    success: function (returndata)
+	    {
+	        $('.result').html(returndata);
+	        console.log('3!!');
+
+	        console.log(returndata)
+	        sendAnswers(returndata);
+	      }  
+	    });
+};
+//Function takes the returndata from the users data in the callApi function and formats it as a xapi statement, then sends it to the LRS
+function sendUser(returndata) {
+
+/*Send Posts}  */
+    for (postID = 0; postID < 10000; postID++) {
+        //If no more post elements, break loop
+        if (!returndata.items.hasOwnProperty(postID))
+            break;
+
+        console.log('Post:' + postID);
+
+        // This is the structure of the xapi statement. It contains the necessary fields to be structured into the LRS database correctly 
+        var stmt = {
+            "actor" : {
+                "mbox" : "mailto:" + emailInput.value,
+                "name" : emailInput.value
+            },
+            "verb" : {
+                "id" : "http://adlnet.gov/expapi/verbs/scored",
+                "display" : {
+                    "en-US" : "scored"
+                }
+            },
+            "object" : {
+                "id" : "http://adlnet.gov/expapi/activities/reputation",
+                "definition" : {
+                    "name" : {
+                        "en-US" : "reputation"
+                    }
+                }
+            },
+            "result" : {
+                "response" : 
+                    returndata.items[postID].reputation.toString()
+                
+            }
+
+        };
+
+        console.log(stmt);
+        //Send to central LRS
+        var conf = {
+            "auth" : "Basic "
+                    + toBase64($('#userName').val()),
+        };
+        ADL.XAPIWrapper.changeConfig(conf);
+
+        var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+        ADL.XAPIWrapper
+                .log("[" + resp_obj.id + "]: " + resp_obj.xhr.status
+                        + " - " + resp_obj.xhr.statusText);
+
+    }
+}
+//Function takes the returndata from the Questions data in the callApi function and formats it as a xapi statement, then sends it to the LRS
+function sendQuestions(returndata) {
+	//Sends Questions to the LRS
+    /*Send Posts}  */
+    for (postID = 0; postID < 10000; postID++) {
+        //If no more post elements, break loop
+        if (!returndata.items.hasOwnProperty(postID))
+            break;
+
+        console.log('Post:' + postID);
+
+        var stmt = {
+            "actor" : {
+                "mbox" : "mailto:" + emailInput.value,
+                "name" : emailInput.value
+            },
+            "verb" : {
+                "id" : "http://adlnet.gov/expapi/verbs/asked",
+                "display" : {
+                    "en-US" : "asked"
+                }
+            },
+            "object" : {
+                "id" : "http://adlnet.gov/expapi/activities/question",
+                "definition" : {
+                    "name" : {
+                        "en-US" : "question"
+                    }
+                }
+            },
+            "result" : {
+                "response" : 
+                    returndata.items[postID].body
+                
+            }
+
+        };
+
+        console.log(stmt);
+        //Send to central LRS
+        var conf = {
+            "auth" : "Basic "
+                    + toBase64($('#userName').val()),
+        };
+        ADL.XAPIWrapper.changeConfig(conf);
+
+        var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+        ADL.XAPIWrapper
+                .log("[" + resp_obj.id + "]: " + resp_obj.xhr.status
+                        + " - " + resp_obj.xhr.statusText);
+
+    }
+}
+//Function takes the returndata from the comments data in the callApi function and formats it as a xapi statement, then sends it to the LRS
+function sendComments(returndata) {
+
+    /*Send Posts}  */
+    for (postID = 0; postID < 10000; postID++) {
+        //If no more post elements, break loop
+        if (!returndata.items.hasOwnProperty(postID))
+            break;
+
+
+
+        console.log('Post:' + postID);
+
+
+        var stmt = {
+            "actor" : {
+                "mbox" : "mailto:" + emailInput.value,
+                "name" : emailInput.value
+            },
+            "verb" : {
+                "id" : "http://adlnet.gov/expapi/verbs/commented",
+                "display" : {
+                    "en-US" : "commented on"
+                }
+            },
+            "object" : {
+                "id" : "http://adlnet.gov/expapi/activities/question",
+                "definition" : {
+                    "name" : {
+                        "en-US" : "question"
+                    }
+                }
+            },
+            "result" : {
+                "response" : 
+                    returndata.items[postID].body
+                
+            }
+
+
+        };
+
+        console.log(stmt);
+        //Send to central LRS
+        var conf = {
+            "auth" : "Basic "
+                    + toBase64($('#userName').val()),
+        };
+        ADL.XAPIWrapper.changeConfig(conf);
+
+        var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+        ADL.XAPIWrapper
+                .log("[" + resp_obj.id + "]: " + resp_obj.xhr.status
+                        + " - " + resp_obj.xhr.statusText);
+
+    }
+}
+//Function takes the returndata from the Answers data in the callApi function and formats it as a xapi statement, then sends it to the LRS
+function sendAnswers(returndata) {
+
+    /*Send Posts}  */
+    for (postID = 0; postID < 10000; postID++) {
+        //If no more post elements, break loop
+        if (!returndata.items.hasOwnProperty(postID))
+            break;
+
+
+
+        console.log('Post:' + postID);
+
+
+        var stmt = {
+            "actor" : {
+                "mbox" : "mailto:" + emailInput.value,
+                "name" : emailInput.value
+            },
+            "verb" : {
+                "id" : "http://adlnet.gov/expapi/verbs/answered",
+                "display" : {
+                    "en-US" : "answered"
+                }
+            },
+            "object" : {
+                "id" : "http://adlnet.gov/expapi/activities/media",
+                "definition" : {
+                    "name" : {
+                        "en-US" : "question"
+                    }
+                }
+            },
+            "result" : {
+                "response" : 
+                    returndata.items[postID].body
+                
+            }
+
+
+        };
+
+        console.log(stmt);
+        //Send to central LRS
+        var conf = {
+            "auth" : "Basic "
+                    + toBase64($('#userName').val()),
+        };
+        ADL.XAPIWrapper.changeConfig(conf);
+
+        var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+        ADL.XAPIWrapper
+                .log("[" + resp_obj.id + "]: " + resp_obj.xhr.status
+                        + " - " + resp_obj.xhr.statusText);
+
+    }
+}
+</script>
+	
+		<div id="stack-container">
+			<header>
+				<h1> <img src="../images/logo-stack-exchange.png" alt="QUT Title" width="350" height="100"></h1>
+				 <div id="header-links">
+					<a href="../pages/index.html"> <img src="../images/home-icon.png" alt="QUT Title" width="30" height="30"> </a> 
+					
+				</div>			
+			</header>
+			
+		</div>
+<div class="page-container">
+	<p>ece01a66d35a80228df9511b3f44d46aaa4adda8:02a3ab63ac7f0348af5960832cf6a0f028fe7718</p>
+
+<!- Form for user number ->
+
+<form class="well form-wrapper cf" name="formInput" action= "#">
+<p>Enter the Stack Exchange user number, this is found in the URL of your user page</p>
+<label>Enter your User Number</label>
+<input Id="txtvarInput" class="span3" type="text" data-provide="typeahead" data-items="1"/>               
+</label>
+<div class="form-actions" "span3">
+    <script language="JavaScript" type="Text/JavaScript">
+    var userNumber = document.getElementById('txtvarInput');
+</script>
+</div>
+<!- Form for Email ->
+<br>
+<p>Enter the email address associated with the LRS</p>
+<label>Enter your Email</label>
+<input Id="txtvarInputEmail" class="span3" type="text" data-provide="typeahead" data-items="1"/>               
+</label>
+<div class="form-actions" "span3">
+    <script language="JavaScript" type="Text/JavaScript">
+    var emailInput = document.getElementById('txtvarInputEmail');
+    console.log(emailInput);
+</script>
+</div>
+<!- Form for LRS User Name ->
+<br>
+<p>Please enter the LRS user name and password seperated by a ":"</p>
+<label>LRS User Name</label>
+<input Id="userName" class="span3" type="text" data-provide="typeahead" data-items="1"/>               
+</label>
+
+<button class="stack-submit" type="button" onclick="apiCall()" id="callApi">Scrape!</button>
+</form>
+
+
+
+</div><!--end.page-container-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<div id="results">
+
+		        <p>
+		        <strong> Scraping tool has collected:<br/> </strong>
+		        13 Posts<br/> 
+		        19 Likes<br/> 
+		        24 Notes<br/> 
+		       	5 Reblogs<br/> 
+		       	6 Replies <br/> <br/> <br/> 
+		        Exported to Learning Locker for 'INB302 - Capstone Project Group'.
+		        </p>	
+		</form>
+</div>
+
+
+
+
+
+	
+<div id="canvas-holder">
+			<canvas id="chart-area" width="500" height="500"/>
+		</div>
+
+	<script>
+
+		var doughnutData = [
+				{
+					value: 13,
+					color:"#F7464A",
+					highlight: "#FF5A5E",
+					label: "Posts"
+				},
+				{
+					value: 19,
+					color: "#46BFBD",
+					highlight: "#5AD3D1",
+					label: "Likes"
+				},
+				{
+					value: 24,
+					color: "#FDB45C",
+					highlight: "#FFC870",
+					label: "Notes"
+				},
+				{
+					value: 5,
+					color: "#949FB1",
+					highlight: "#A8B3C5",
+					label: "Reblogs"
+				},
+				{
+					value: 6,
+					color: "#BA55D3",
+					highlight: "#D699E5",
+					label: "Replies"
+				}
+
+			];
+
+			window.onload = function(){
+				var ctx = document.getElementById("chart-area").getContext("2d");
+				window.myDoughnut = new Chart(ctx).Doughnut(doughnutData, {responsive : true});
+			};
+
+
+
+	</script>-->
+
+	</body>
+
+</html>	
+
+
+			
+		

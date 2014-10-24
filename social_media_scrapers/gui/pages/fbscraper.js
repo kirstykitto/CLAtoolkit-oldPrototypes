@@ -72,7 +72,7 @@ var FunctionTwo = function () {
 
         }
     });
-    $('.loading-image').hide()
+
 };
 /*function prepareScrape() {
     
@@ -114,6 +114,13 @@ function scrapeGroupFeed() {
 
 function sendPosts(response) {
 
+	
+	//Set LRS Endpoint
+	var conf = {
+			  "endpoint" : document.getElementById("LRSEndpoint").value
+			};
+			ADL.XAPIWrapper.changeConfig(conf);
+	
     /* Send Posts} */
     for (postID = 0; postID < 10000; postID++) {
         // If no more post elements, break loop
@@ -140,21 +147,27 @@ function sendPosts(response) {
                     "name": response.data[postID].from.name
                 },
                 "verb": {
-                    "id": "http://adlnet.gov/expapi/verbs/answered",
+                    "id": "http://activitystrea.ms/schema/1.0/create",
                     "display": {
-                        "en-US": "posted"
+                        "en-US": "created"
                     }
                 },
                 "object": {
-                    "id": "http://adlnet.gov/expapi/activities/question",
+                    "id": "http://adlnet.gov/exapi/activities/media",
                     "definition": {
                         "name": {
-                            "en-US": response.data[postID].message
+                            "en-US": "media"
                         }
                     }
 
                 },
+                "result" : {
+                    "response" : 
+                    	response.data[postID].message
+                    
+                },	
                 "timestamp": response.data[postID].created_time
+                
 
             };
 
@@ -162,7 +175,7 @@ function sendPosts(response) {
 
             // Send to central LRS
             var conf = {
-                "auth": "Basic " + toBase64('b2d6bdee56cb8a7b3fbe3cae8c7a05d641564264:3ba7834f0ab375574a63250f782e4c77ed37eb80'),
+                "auth": "Basic " + toBase64(document.getElementById("LRSUser").value + ':' + document.getElementById("LRSPass").value),
             };
             ADL.XAPIWrapper.changeConfig(conf);
 
@@ -202,10 +215,10 @@ function sendPosts(response) {
 }
 
 function sendComments(response, postID) {
-        // Check to see if post has comments before enterting loop to send
+        // Check to see if post has comments before entering loop to send
         // comments
 
-        for (commentID = 0; commentID < 100; commentID++) {
+        for (commentID = 0; commentID < 10000; commentID++) {
             if (!response.data[postID].hasOwnProperty('comments') || !response.data[postID].comments.data
                 .hasOwnProperty(commentID))
                 break;
@@ -229,21 +242,26 @@ function sendComments(response, postID) {
                             }
                         },
                         "object": {
-                            "id": "http://adlnet.gov/expapi/activities/media",
+                        	"id": "http://adlnet.gov/exapi/activities/media",
                             "definition": {
                                 "name": {
-                                    "en-US": response.data[postID].message
+                                    "en-US": "media"
                                 }
                             }
 
                         },
+                        "result" : {
+                            "response" : 
+                            	response.data[postID].comments.data[commentID].message
+                            
+                        },	
                         "timestamp": response.data[postID].comments.data[commentID].created_time
 
                     }
                     // Send to central LRS
                 var conf = {
-                    "auth": "Basic " + toBase64('b2d6bdee56cb8a7b3fbe3cae8c7a05d641564264:3ba7834f0ab375574a63250f782e4c77ed37eb80'),
-                };
+                        "auth": "Basic " + toBase64(document.getElementById("LRSUser").value + ':' + document.getElementById("LRSPass").value),
+                    };
                 ADL.XAPIWrapper.changeConfig(conf);
 
                 var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
@@ -303,10 +321,10 @@ function sendLikes(response, postID, commentNum) {
                     }
                 },
                 "object": {
-                    "id": "http://adlnet.gov/expapi/activities/media",
+                	"id": "http://adlnet.gov/exapi/activities/media",
                     "definition": {
                         "name": {
-                            "en-US": response.data[postID].message
+                            "en-US": "media"
                         }
                     }
 
@@ -317,8 +335,8 @@ function sendLikes(response, postID, commentNum) {
 
             // Send to central LRS
             var conf = {
-                "auth": "Basic " + toBase64('b2d6bdee56cb8a7b3fbe3cae8c7a05d641564264:3ba7834f0ab375574a63250f782e4c77ed37eb80'),
-            };
+                    "auth": "Basic " + toBase64(document.getElementById("LRSUser").value + ':' + document.getElementById("LRSPass").value),
+                };
             ADL.XAPIWrapper.changeConfig(conf);
 
             var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
@@ -369,6 +387,7 @@ function fetchUserAuthTable() {
                  */
             } else {
                 console.log("User is logged out");
+                alert('User is logged out');
             }
         });
 
@@ -440,12 +459,13 @@ function setFacebookUserInfo() {
     FB.api("/me", function(response) {
         // send json object to firebase
         usersRef.push({
-            LRSHTTPPassword: "",
-            LRSHTTPUsername: "",
+            LRSHTTPPassword: $('#individualLRSUser').val(),
+            LRSHTTPUsername: $('#individualLRSPass').val(),
             email: emailValue,
             fbID: response.id,
             name: response.name
         });
+        alert('Registration complete.');
     });
 }
 
@@ -454,8 +474,8 @@ function notifyScrape() {
     FB.api(
         "/" + document.getElementById("groupID").value + "/feed",
         "POST", {
-            message: "The scraper has run. ####Edit Message####",
-            link: 'https://fbcdn-sphotos-e-a.akamaihd.net/hphotos-ak-xaf1/v/t1.0-9/s720x720/10672373_830191380344657_706589799545495165_n.jpg?oh=a71e71ecad04df07dcd5c6faec484e5a&oe=5488A2F6&__gda__=1417996691_3a50ac95878af2b25d0c2745a3ab8ec3'
+        	message: "The scraper has run. ####Edit Message####",
+            link: 'http://jwpilkington.me/capstone/james/gui/images/scrape-notify.png'
 
         },
         function(response) {
@@ -469,6 +489,7 @@ function notifyScrape() {
 }
 
 function writeScrapeInfo() {
+    $('.loading-image').hide()
     $("div#scrapped-stats span").append('<strong> Scraping tool has collected:</strong><br/>' + postsScraped + 'Posts<br/>' + likesScraped + 'Likes<br/>' + commentsScraped + 'Comments <br/><br/> Exported to Learning Locker for INB302 - Capstone Project Group.');
 
 
@@ -499,3 +520,4 @@ function writeScrapeInfo() {
 
 
 }
+

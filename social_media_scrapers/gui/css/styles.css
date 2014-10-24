@@ -9,9 +9,10 @@
 		background-color:#186FB7
 	}
 
+   
+
 	p{
-		font-family: Arial, Helvetica, sans-serif;
-	}
+   font: 15px 'lucida sans', 'trebuchet MS', 'Tahoma';	}
 
 	
 
@@ -29,12 +30,41 @@
 				width:30%;
 	}
 	
-	#links{
+	#main-links{
 		width: 350px;
 		margin: 0 auto;
 		padding-top: 100px;
-
 	}
+
+    #header-links{
+    position: absolute;
+    top: 30px;
+    right: 10px;
+    }
+
+
+    #scrape-buttons{
+        text-align: center;
+        font: bold 15px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
+        margin-top: 100px;
+    }
+
+    #scrape-buttons button{ 
+    overflow: visible;
+    border: 0;
+    padding: 5px;
+    cursor: pointer;
+    font: bold 15px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    color: #fff;
+    text-transform: uppercase;
+    background: #d83c3c;
+    border-radius: 0 3px 3px 0;     
+    text-shadow: 0 -1px 0 rgba(0, 0 ,0, .3);
+    }
+
+
+
+
 #link-f:hover { 
 background-image: url('../images/hover-facebook.png');
 width: 350px;
@@ -99,7 +129,7 @@ height: 100px;
 .form-wrapper {
     width: 650px;
  
-    margin: 150px auto 50px auto;
+    margin: 100px auto 50px auto;
     background: #444;
     background: rgba(0,0,0,.2);
     border-radius: 10px;
@@ -187,10 +217,60 @@ height: 100px;
  
 .form-wrapper button:focus:before,
 .form-wrapper button:active:before{
-        border-right-color: #c42f2f;
+    border-right-color: #c42f2f;
 }     
  
 .form-wrapper button::-moz-focus-inner { /* remove extra button spacing for Mozilla Firefox */
     border: 0;
     padding: 0;
-}    
+}  
+
+   #stack-exchange-form{
+    width: 530px;
+   margin: 100px auto 50px auto;
+}
+
+
+#stack-exchange-form input{
+    width: 100%;
+    height: 20px;
+    padding: 10px 5px;
+    margin: 10px;
+    font: bold 15px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    border: 0;
+    background: #eee;
+    border-radius: 3px 0 0 3px;    
+
+}
+
+#stack-exchange-form button{
+    overflow: visible;
+    border: 0;
+    padding: 2px;
+    cursor: pointer;
+    font: bold 15px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    color: #fff;
+    text-transform: uppercase;
+    background: #d83c3c;
+    border-radius: 0 3px 3px 0;     
+    text-shadow: 0 -1px 0 rgba(0, 0 ,0, .3);
+    margin: 0 40%;
+    width: 110px;
+}
+
+
+#results{
+margin: 50px auto;
+
+
+}
+
+#canvas-holder{
+    margin: 0 auto;
+
+}
+
+
+
+
+
