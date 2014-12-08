@@ -1,60 +1,154 @@
 <!DOCTYPE html>
+<!--
+    Google Drive Scraper - Scrapes data from Google Drive feed
+    Copyright (C) 2014  Sebastian Cross
+    Copyright (C) 2014  Zak Waters
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>Twitter Scraping tool V1.0</title>
-	</head>
-	<body>
-		<?php
-		$hashtag_form = <<<HTML
-				<p>Enter the hashtag you wish to scrape: </p>
-				<form name="form" method="post">
-					<input name="input" type="text" style="width:400px;"/>
-					<input name="submit" type="submit" value="Tracking data"/>
-				</form>
-HTML;
-		if(!isset($_POST['input'])) {
-			print $hashtag_form;
-			exit;
-		}
-		require_once __DIR__ . '/TwitterOAuth/TwitterOAuth.php';
-		require_once __DIR__ . '/TwitterOAuth/Exception/TwitterException.php';
-		use TwitterOAuth\TwitterOAuth;
-		date_default_timezone_set('UTC');
-		/**
-		 * Array with the OAuth tokens provided by Twitter when you create application
-		 * output_format - Optional - Values: text|json|array|object - Default: object
-		 */
-		$config = array(
-			'consumer_key'       => '', // API key
-			'consumer_secret'    => '', // API secret
-			'oauth_token'        => '', // not needed for app only
-			'oauth_token_secret' => '',
-			'output_format'      => 'object'
-		);
-		/**
-		 * Instantiate TwitterOAuth class with set tokens
-		 */
-		$connection = new TwitterOAuth($config);
-		// Get an application-only token
-		// more info: https://dev.twitter.com/docs/auth/application-only-auth
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+     <script type="text/javascript" src="build/tincan.js"></script>
+    <script type="text/javascript">
+           
+// Client_ID and API_KEY is unique to each google account.
+var CLIENT_ID = '';
+var API_KEY = '';
+var SCOPES = 'https://www.googleapis.com/auth/drive';
 
-		$bearer_token = $connection->getBearerToken();
-		print $hashtag_form;
-		$q = ($_POST['input']);
-		$paramstags = array(
-			'q' => $q, // name of the current hashtag being scraped
-			'count' => 20   ,// detirmin the amount of posts to be craped.
-			'exclude_replies' => true
-		);
-		$tags = $connection->get('search/tweets', $paramstags);
+function handleClientLoad() {
+    gapi.client.setApiKey(API_KEY);
+    window.setTimeout(checkAuth,1);
+}
 
-		//echo '<pre>'; print_r($tags); echo '</pre>'; >>>>>>>> Use this to display all information that is being scraped from the hashtag.
+function checkAuth() {
+    var options = {
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        immediate: true
+    };
+    gapi.auth.authorize(options, handleAuthResult);
+}
 
-		foreach ($tags->statuses as $tagreplier) {
-			print '<b>Name: </b>'.($tagreplier->user->name).'<br>';
-			print '<b>Comment: </b>'.($tagreplier->user->description).'<br><hr>';
-		}
-		?>
-	</body>
+function handleAuthResult(authResult) {
+    var authorizeButton = document.getElementById('authorize-button');
+
+    if (authResult && !authResult.error) {
+        authorizeButton.style.visibility = 'hidden';
+        makeApiCall();
+    } else {
+        authorizeButton.style.visibility = '';
+        authorizeButton.onclick = handleAuthClick;
+    }
+}
+
+function handleAuthClick(event) {
+    var options = {
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        immediate: false
+    };
+    gapi.auth.authorize(options, handleAuthResult);
+    return false;
+}
+
+function makeApiCall() {  
+    gapi.client.load('drive', 'v2', makeRequest);   
+}
+
+/**
+ * Retrieve a list of all the files that are in the google drive.
+ * 
+ */
+function makeRequest() {
+    var request = gapi.client.drive.files.list({'maxResults': 20 });
+    request.execute(function(resp) {          
+        for (i=0; i<resp.items.length; i++) {
+            var title = resp.items[i].title;
+            var modiedate = resp.items[i].modifiedDate;
+            var lastModifyingUserName = resp.items[i].lastModifyingUserName;
+            var embedLink = resp.items[i].embedLink;
+            var alternateLink = resp.items[i].alternateLink;
+            var documentID = resp.items[i].id;
+            retrieveComments(documentID);
+            
+            var fileInfo = document.createElement('li');
+            fileInfo.appendChild(document.createTextNode('Title: ' + title + ' - last modified date: ' + modiedate + ' - modified by: ' + lastModifyingUserName + ' - ID of document ' + documentID));                
+            document.getElementById('files').appendChild(fileInfo);   
+           
+        tincan.sendStatement(
+    {
+        actor: {
+            mbox: title
+        },
+        verb: {
+            id: "http://adlnet.gov/expapi/verbs/attempted"
+        },
+        target: {
+            id: "http://rusticisoftware.github.com/TinCanJS"
+        }
+         
+    }
+);
+        }
+    });    
+}
+/**
+ * Retrieve a list of all the comments that are in the google drive.
+ * @param {String} fileId ID of the file to retrieve comments for.
+ * @param {Function} callback Function to call when the request is complete.
+ */
+
+function retrieveComments(fileId, callback) {
+  var request = gapi.client.drive.comments.list({
+    'fileId': fileId});
+ request.execute(function(resp) {  
+    
+            if (typeof resp.items !== 'undefined') {
+                for (var i = 0; i < resp.items.length; i++){                 
+                    var commentId = resp.items[i].commentId;
+                    var content = resp.items[i].content;                  
+                    var fileComments = document.createElement('li');
+                    fileComments.appendChild(document.createTextNode('Coment ID: ' + commentId + ' -    Comment ' + content ));                
+                    document.getElementById('comments').appendChild(fileComments);
+               
+            tincan.sendStatement(
+    {
+        actor: {
+            mbox: commentId
+        },
+        verb: {
+            id: "http://adlnet.gov/expapi/verbs/attempted"
+        },
+        target: {
+            id: "http://rusticisoftware.github.com/TinCanJS"
+        }
+         
+    }
+);
+    }
+            }    
+    });    
+  //request.execute(callback);
+}
+    </script>
+    <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+  </head>
+  <body>
+<button id="authorize-button">Authorize</button>
+<div id="files">Files:</div>
+<div id="comments">Comments:</div>
+  </body>
 </html>
