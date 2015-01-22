@@ -269,7 +269,10 @@ margin: 50px auto;
     margin: 0 auto;
 
 }
-
+#resp {
+    border-style: solid;
+    border-width: 1px;
+}
 
 
 

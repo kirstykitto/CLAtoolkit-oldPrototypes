@@ -18,23 +18,26 @@
  */
 
 -->
-<?php require 'vendor/autoload.php'; ?>
+
 <html>
 	<head>
 		<title>Google+ JavaScript Quickstart</title>
 		<link href="css/main.css" rel="stylesheet" type="text/css"/>
 		<script type="text/javascript" src="build/tincan.js"></script>
 		<script type="text/javascript">
-			var tincan = new TinCan ({
-				recordStores: [
-					{
-						endpoint: "",
-						username: "",
-						password: "",
-						allowFail: false
-					}
-				]
-			});
+                           /** var tincan = new TinCan (
+                                {
+                                    recordStores: [
+                                        {
+                                            endpoint: "",
+                                            username: "",
+                                            password: "",
+                                            allowFail: false
+                                        }
+                                    ]
+                                }
+                            );
+    */
 			(function() {
 				var po = document.createElement('script');
 				po.type = 'text/javascript';
@@ -75,6 +78,7 @@
 		</div>
 	</body>
 	<script type="text/javascript">
+            
 		var helper = (function() {
 			var BASE_API_PATH = 'plus/v1/';
 			return {
