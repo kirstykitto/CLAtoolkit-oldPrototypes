@@ -25,6 +25,7 @@
 		<link href="css/main.css" rel="stylesheet" type="text/css"/>
 		<script type="text/javascript" src="build/tincan.js"></script>
 		<script type="text/javascript">
+<<<<<<< HEAD:pages/google.php
                            /** var tincan = new TinCan (
                                 {
                                     recordStores: [
@@ -38,6 +39,8 @@
                                 }
                             );
     */
+=======
+>>>>>>> b27f3499034d9f8b188d15567f64f16815c65613:google/index.php
 			(function() {
 				var po = document.createElement('script');
 				po.type = 'text/javascript';
