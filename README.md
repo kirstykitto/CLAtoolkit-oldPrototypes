@@ -24,6 +24,8 @@ The importance of this toolkit is that once data is gathered and stored, the nex
 
 The GUI
 ---------
-The CLA Toolkit is built on top of Bootstrap, giving a simple HTML, CSS and JavaScript framework that helps standardise the Web based user interface. This will also help with the ongoing development of this toolkit and future implementation. 
+The CLA Toolkit is built on top of Bootstrap, giving a simple HTML, CSS and JavaScript framework that helps standardise the Web based user interface. This will also help with the ongoing development of this toolkit and future implementation.
+
 The toolkit also uses a wizard plugin for bootstrap - https://github.com/VinceG/twitter-bootstrap-wizard 
+
 For further development of the GUI please refer to - http://getbootstrap.com/
