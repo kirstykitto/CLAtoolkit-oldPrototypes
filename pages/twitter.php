@@ -21,18 +21,25 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Twitter Scraping tool V1.0</title>
-                    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-                    <script type="text/javascript" src="js/xapiwrapper.min.js"></script>
+                
 	</head>
 	<body>
+            
 		<?php
+                require 'vendor/autoload.php';
+                $lrs = new TinCan\RemoteLRS(
+                    '',
+                    '1.0.1',
+                    '',
+                    ''
+                );
 		$hashtag_form = <<<HTML
 				<p>Enter the hashtag you wish to scrape: </p>
 				<form name="form" method="post">
 					<input name="input" type="text" style="width:400px;"/>
 					<input name="submit" type="submit" value="Tracking data"/>
-				</form>
-				<br>
+				</form>                                
+                                <p>
 HTML;
 		if(!isset($_POST['input'])){
 			print $hashtag_form;
@@ -65,17 +72,82 @@ HTML;
 		$q = ($_POST['input']);
 		$paramstags = array(
 			'q' => $q, // name of the current hashtag being scraped
-			'count' => 20   ,// detirmin the amount of posts to be craped.
+			'count' => 5   ,// detirmin the amount of posts to be craped.
 			'exclude_replies' => true
 		);
 		$tags = $connection->get('search/tweets', $paramstags);
 
-		//echo '<pre>'; print_r($tags); echo '</pre>'; >>>>>>>> Use this to display all information that is being scraped from the hashtag.
+		// echo '<pre>'; print_r($tags); echo '</pre>';
 
 		foreach ($tags->statuses as $tagreplier) {
 			print '<b>Name: </b>'.($tagreplier->user->name).'<br>';
 			print '<b>Comment: </b>'.($tagreplier->user->description).'<br><hr>';
+                                                    
+                        $actor = new TinCan\Agent(
+                            [ 'mbox' => $tagreplier->user->name ]
+                        );
+                        $verb = new TinCan\Verb(
+                            [ 'id' => 'http://adlnet.gov/expapi/verbs/experienced' ]
+                        );
+                        $activity = new TinCan\Activity(
+                            [ 'id' => 'http://rusticisoftware.github.com/TinCanPHP' ]
+                        );
+                        $statement = new TinCan\Statement(
+                            [
+                                'actor' => $actor,
+                                'verb'  => $verb,
+                                'object' => $activity,
+                            ]
+                        );
+
+                        $response = $lrs->saveStatement($statement);
+                        if ($response->success) {
+                            print "Statement sent successfully!\n";
+                        }
+                        else {
+                            print "Error statement not sent: " . $response->content . "\n";
+                        }
 		}
+                
+                $params = array(
+                    'screen_name' => 'ricard0per',
+                    'count' => 3,
+                    'exclude_replies' => true,
+                );
+                $response = $connection->get('statuses/user_timeline', $params);
+                echo '<strong>statuses/user_timeline</strong><br />';
+               // echo '<pre class="array">'; print_r($connection->getHeaders()); echo '</pre>';
+               // echo '<pre class="array">'; print_r($response); echo '</pre><hr />';
+               foreach ($response as $status) {
+			print '<b>Name: </b>'.($status->user->name).'<br>';
+			print '<b>Comment: </b>'.($status->text).'<br><hr>';
+                                                
+                $actor = new TinCan\Agent(
+                    [ 'mbox' => $status->user->name]
+                );
+                $verb = new TinCan\Verb(
+                    [ 'id' => 'http://adlnet.gov/expapi/verbs/experienced' ]
+                );
+                $activity = new TinCan\Activity(
+                    [ 'id' => 'http://rusticisoftware.github.com/TinCanPHP' ]
+                );
+                $statement = new TinCan\Statement(
+                    [
+                        'actor' => $actor,
+                        'verb'  => $verb,
+                        'object' => $activity,
+                    ]
+                );
+
+                $response = $lrs->saveStatement($statement);
+                if ($response->success) {
+                    print "Statement sent successfully!\n";
+                }
+                else {
+                    print "Error statement not sent: " . $response->content . "\n";
+                }
+               }
+
 		?>
 	</body>
 </html>
