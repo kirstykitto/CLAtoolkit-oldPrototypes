@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--Facebook learning locker scraper - Uses the social media's api to send information to a lrs
+    Copyright (C) 2014 James Pilkington
+    Copyright (C) 2014 Clinton Redhouse
+    Copyright (C) 2014 Nathan Osborne-->
+    <meta charset="utf-8">
+    <title>Facebook Scraper</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+     <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/global.css" rel="stylesheet">
+        <script src="../include/Chart.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/xapiwrapper.min.js"></script>
+
+    <!-- Firebase Imports -->
+    <script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
+    <script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
+    <!--Scraper Import  -->
+    <script src="js/fbscraper.js"></script>
+
+</head>
+<body>
+    <nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">CLA Toolkit</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+         <ul class="nav navbar-nav">
+            <li class="active"><a href="index.html">Home</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Scrapers<span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="facebook-scraper.html">Facebook Scraper</a></li>
+                <li><a href="googleplus-scraper.html">Google Plus Scraper</a></li>
+                <li><a href="stack-exchange-scraper.html">Stack Exchange Scraper</a></li>
+              </ul>
+            </li>
+            <li><a href="reports.html">Reports</a></li>
+            <li><a href="sign-up.html">Sign Up</a></li>
+          </ul>
+        </div><!-- /.nav-collapse -->
+      </div><!-- /.container -->
+    </nav><!-- /.navbar -->
+
+    <div class="container">
+      <form  class="form-horizontal">
+<div id="rootwizard">
+  <ul class="tabs-custom">
+    <li><a href="#tab1" data-toggle="tab">Facebook Login</a></li>
+    <li><a href="#tab2" data-toggle="tab">LRS Details</a></li>
+    <li><a href="#tab3" data-toggle="tab">Options</a></li>
+    <li><a href="#tab4" data-toggle="tab">Enter User Group</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane" id="tab1">
+        <div class="control-group">
+          
+          <div class="controls">
+            <p>If already logged into Facebook, it is important to first log out then log in using the provided button.</p>
+            <fb:login-button autologoutlink="true" scope="user_groups,email"> </fb:login-button>
+          </div>  
+        </div>
+      </div><!-- /tab1 -->
+
+      <div class="tab-pane" id="tab2">
+        <div class="control-group">
+          
+          <div class="controls">
+            <label>Enter Main LRS Endpoint</label>
+            <input type="text" name="LRSEndpoint" id="LRSEndpoint">
+          </div>  
+          <div class="controls">
+            <label>Enter Main LRS Username</label>
+            <input type="text" name="LRSUser" id="LRSUser">
+          </div>
+          <div class="controls">
+            <label>Enter Main LRS Password</label>
+            <input type="text" name="LRSPass" id="LRSPass">
+          </div>
+        </div>
+      </div><!-- /tab2 -->
+
+      <div class="tab-pane" id="tab3">
+        <div class="control-group">
+          
+          <div class="controls">
+                <input type="checkbox" id="ignoreDup" value="ignoreDup"> Ignore duplicates?
+                <!-- trigger modal -->
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <input type="checkbox" id="postNotif" value="postNotif"> Post scrape notification?
+          </div>
+        </div>
+      </div><!-- tab3.end-->
+
+      <div class="tab-pane" id="tab4">
+        <div class="control-group">
+          
+          <div class="controls">
+                <label>Enter Group ID</label>
+                <input type="text" name="groupID" id="groupID" placeholder="Enter Group ID Here...">
+                <!-- trigger modal -->
+                <span  class="glyphicon glyphicon-question-sign" data-toggle="modal" data-target="#facebookgroup-help"></span>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <button class="btn btn-primary" type="button" onclick="FunctionOne().done(FunctionTwo);">Scrape!</button>
+          </div>
+        </div>
+      </div><!-- tab3.end-->
+
+
+    <ul class="pager wizard">
+      <li class="previous first" style="display:none;"><a href="#">First</a></li>
+      <li class="previous"><a href="#">Previous</a></li>
+      <li class="next last" style="display:none;"><a href="#">Last</a></li>
+        <li class="next"><a href="#">Next</a></li>
+    </ul>
+  </div>  
+</div>
+</form>
+<!-- Modal -->
+    <div class="modal fade" id="facebookgroup-help" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+        </div>
+      </div>
+    </div><!-- /Modal social-media-help -->
+  </div><!--/container -->
+
+
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/components.js"></script>
+    <script type="text/javascript" src="js/jquery.bootstrap.wizard.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+    var $validator = $("#commentForm").validate({
+      rules: {
+       socialfield: {
+          required: true
+          
+        },
+        endpointfield: {
+          required: true
+          
+        }
+    
+      }
+    });
+ 
+      $('#rootwizard').bootstrapWizard({
+        'tabClass': 'nav nav-pills',
+        'onNext': function(tab, navigation, index) {
+          var $valid = $("#commentForm").valid();
+          if(!$valid) {
+            $validator.focusInvalid();
+            return false;
+          }
+        }
+      }); 
+});
+    </script>
+
+
+</body>
+</html>
