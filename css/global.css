@@ -1,0 +1,50 @@
+/*-----------------------------------
+muiltipage scrapper form styles
+-----------------------------------*/
+
+{
+  
+}
+.facebook-set,
+.twitter-set,
+.google-set,
+.linkedin-set,
+.google-drive-set,
+.youtube-set{
+  display: none;
+  
+}
+
+.main-form {
+  border-bottom: solid 1px #e3e4e1;
+  padding-bottom: 1em;
+}
+
+/*-----------------------------------
+header styles
+-----------------------------------*/
+.navbar-fixed-top, .navbar-fixed-bottom{
+  position: relative;
+}
+
+#fieldsets span{
+  display: block;
+}
+
+.tabs-custom{
+  margin: 0 0 1em 0;
+}
+
+.controls{
+	margin: 1em;
+}
+
+.modal-custom{
+	width: 80%;
+}
+
+.panel-custom{
+	border-color: #ddd;
+	padding: 1em;
+	overflow: auto;
+}
