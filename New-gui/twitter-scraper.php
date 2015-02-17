@@ -57,11 +57,7 @@
         </div><!-- /.nav-collapse -->
       </div><!-- /.container -->
     </nav><!-- /.navbar -->
-    <?PHP
 
-
-
-?>
     <div class="container">
     <?php
     $lrsend = $_GET['LRSEndpoint'];
@@ -73,7 +69,7 @@
                     '1.0.1',
                     '$username',
                     '$userpass'
-                );*/
+                );
          
        
  
