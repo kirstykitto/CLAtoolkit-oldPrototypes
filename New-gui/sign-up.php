@@ -38,16 +38,20 @@
       <form class="form-wrapper cf">
           <div class="panel panel-custom">
           <p>Link your social media with your QUT Connect account.</p>
-          <p>Please login in to you social media before joining.</p>      
+          <p>Linking up your social media accounts are essential to getting a better understand of your learning. </p> 
+          <p>For both Facebook and google+ they require authentication and approval of user. This is why you will need to sign-in to each before linking or removing.</p>
+          <p>Twitter requires you to enter your username (@yourname) then enter a hashtag to be associated with. You can add more hashtags at any time, but you must always enter your username.</p>      
             <div class="panel panel-custom">
               <div class="form-group">
                 <label for="inputPassword3" class="col-sm-4 control-label">Link your Facebook account</label>
                 <div class="col-sm-8">
+                  <div class="col-sm-6">
                   <fb:login-button autologoutlink="true" scope="user_groups,email"> </fb:login-button>
-                  <p>facebook sign in here</p>
+                  </div>
+                  <div class="col-sm-6">
                   <button class="btn btn-primary"  onclick="setFacebookUserInfo()" type="button">Join</button>
-                  <span>&nbsp</span>
                   <button class="btn btn-primary" type="button">remove</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -55,11 +59,14 @@
               <div class="form-group">
                 <label for="inputPassword3" class="col-sm-4 control-label">Link your Twitter account</label>
                 <div class="col-sm-8">
-                  <p>twitter sign in here</p>
-                  <input type="text" id="#"placeholder="user name or hashtag">
-                  <button class="btn btn-primary" type="button">Join</button>
-                  <span>&nbsp</span>
-                  <button class="btn btn-primary" type="button">remove</button>
+                  <div class="col-sm-6">
+                    <input type="text" id="username"placeholder="user name">
+                    <input type="text" id="hashtag"placeholder="hashtag">
+                  </div>
+                  <div class="col-sm-6">
+                    <button class="btn btn-primary" type="button">Join</button>
+                    <button class="btn btn-primary" type="button">remove</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -67,11 +74,13 @@
               <div class="form-group">
                 <label for="inputPassword3" class="col-sm-4 control-label">Link your Google+ account</label>
                 <div class="col-sm-8">
-                  <p>Google sign in here</p>
-                  <input type="text" id="#"placeholder="user name or hashtag">
-                  <button class="btn btn-primary" type="button">Join</button>
-                  <span>&nbsp</span>
-                  <button class="btn btn-primary" type="button">remove</button>
+                  <div class="col-sm-6">
+                    <p>Google sign in here</p>
+                  </div>
+                  <div class="col-sm-6">
+                    <button class="btn btn-primary" type="button">Join</button>
+                    <button class="btn btn-primary" type="button">remove</button>
+                  </div>
                 </div>
               </div>
             </div>
