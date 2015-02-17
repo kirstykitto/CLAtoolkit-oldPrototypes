@@ -24,6 +24,7 @@
     <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/global.css" rel="stylesheet">
 
+
 </head>
 <body>
 
@@ -56,16 +57,26 @@
         </div><!-- /.nav-collapse -->
       </div><!-- /.container -->
     </nav><!-- /.navbar -->
+    <?PHP
 
+
+
+?>
     <div class="container">
-      <?php
+    <?php
+    $lrsend = $_GET['LRSEndpoint'];
+    $username = $_GET['LRSUser'];
+    $userpass = $_GET['LRSPass'];
                 require 'vendor/autoload.php';
                 $lrs = new TinCan\RemoteLRS(
-                    'http://54.206.43.109/data/xAPI/',
+                    '$lrsend',
                     '1.0.1',
-                    'baae59cd41d1e07376d5038f859b3a7bb174ea63',
-                    '5fc0d4cc87d091408bac3bffc8fe33a07df8bdd4'
-                );
+                    '$username',
+                    '$userpass'
+                );*/
+         
+       
+ 
     $hashtag_form = <<<HTML
       <form id="commentForm" method="get" name="form" class="form-horizontal">
 <div id="rootwizard">
@@ -79,7 +90,8 @@
         <div class="control-group">
            <div class="controls">
             <label>Enter Main LRS Endpoint</label>
-            <input type="text" name="LRSEndpoint" id="LRSEndpoint">
+            <input type="text" name="LRSEndpoint" id="LRSEndpoint" value="test">
+
           </div>  
           <div class="controls">
             <label>Enter Main LRS Username</label>
