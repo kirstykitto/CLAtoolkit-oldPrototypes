@@ -53,11 +53,7 @@
         $connection = new TwitterOAuth($config);
         // Get an application-only token
         // more info: https://dev.twitter.com/docs/auth/application-only-auth
-       // $result_users = mysql_query("SELECT * FROM twitter");
-       // $twitter_users = []; 
-       // while ($rows = mysql_fetch_assoc($result_users)){
-       //     $twitter_users[] = $rows['profileName'];    
-      //  }
+
         $result = mysql_query("SELECT users.*, twitter.profileName, twitter.twitterID,  hashtag.hashtag, hashtag.hashtagID FROM users INNER JOIN twitter ON users.ID=twitter.ID INNER JOIN hashtag ON users.ID=hashtag.ID;");
 
         $hashtag = "hashtag";
