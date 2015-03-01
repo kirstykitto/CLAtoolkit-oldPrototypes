@@ -1,3 +1,5 @@
+WARNING: This toolkit is a Work In Progress - The most mature and working scrapers are the Twitter and Facebook scrapers, these are located in the folder New-gui/.
+
 The Connected Learning Analytics Toolkit
 =========
 The Connected Learning Analytics (CLA) toolkit uses a Learning Record Store (LRS) as specified by the experience API (xAPI). Any data can be sent to a LRS as long as there is the appropriate scraper to gather the data.
