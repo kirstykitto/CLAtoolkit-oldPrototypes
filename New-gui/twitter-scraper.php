@@ -46,10 +46,10 @@
       <?php
       require 'vendor/autoload.php';
       $lrs = new TinCan\RemoteLRS(
-        'http://54.206.43.109/data/xAPI/',
+        'http://transformll-dev.qut.edu.au/data/xAPI/',
         '1.0.1',
-        'baae59cd41d1e07376d5038f859b3a7bb174ea63',
-        '5fc0d4cc87d091408bac3bffc8fe33a07df8bdd4'
+        'b52015af97c5ed871de667af3dfae243ac670e70',
+        '645dc00980639b83fcdfdcfc83c0f8a6e751f3f0'
         );
 
 
@@ -103,12 +103,12 @@ HTML;
      * output_format - Optional - Values: text|json|array|object - Default: object
      */
           $config = array(
-            'consumer_key'       => '', // API key
-            'consumer_secret'    => '', // API secret
-            'oauth_token'        => '', // not needed for app only
-            'oauth_token_secret' => '',
+            'consumer_key'       => 'g0iHBvpghpaQ1mDq27F2fBtZ8', // API key
+            'consumer_secret'    => 'LtSFohUi9Umv2mS69515L0V3B0rzS9a0299Kw6TELHZ4Y7tm0S', // API secret
+            'oauth_token'        => '736893980-OJ6cP9rL07Xi2lQMn0uhrfhVtQAGJk9RvGOpJrpr', // not needed for app only
+            'oauth_token_secret' => '8gu4qHESbZE8yNFQXxfjXuvKSmrMQDJ9eVwZLK1pSD5k0',
             'output_format'      => 'object'
-            );
+        );
 /**
      * Instantiate TwitterOAuth class with set tokens
      */
@@ -120,7 +120,7 @@ print $hashtag_form;
 $userName = ($_POST['userID']);
 $params = array(
   'screen_name' => $userName,
-  'count' => 1000,
+  'count' => 1,
   'exclude_replies' => true,
   );
 $response = $connection->get('statuses/user_timeline', $params);
@@ -128,29 +128,53 @@ foreach ($response as $status) {
   print '<b>Name: </b>'.($status->user->name).'<br>';
   print '<b>Comment: </b>'.($status->text).'<br><hr>';
 
-  $actor = new TinCan\Agent(
-    [ 'mbox' => $status->user->name]
-    );
-$verb = new TinCan\Verb(
-  [ 'id' => 'http://activitystrea.ms/schema/1.0/created' ]
-  );
-$activity = new TinCan\Activity(
-  [ 'id' => 'http://adlnet.gov/exapi/activities/media' ]
-  );
-$statement = new TinCan\Statement(
-  [
-  'actor' => $actor,
-  'verb'  => $verb,
-  'object' => $activity,
-  ]
-  );
-$response = $lrs->saveStatement($statement);
-if ($response->success) {
-  print "Statement sent successfully!\n";
-}
-else {
-  print "Error statement not sent: " . $response->content . "\n";
-}
+                            $actor = new TinCan\Agent(
+                    [ 'mbox' => "rsospring@hotmail.com" ]
+                );
+                $verb = new TinCan\Verb(
+                    [ 'id' => 'http://activitystrea.ms/schema/1.0/created',
+                        'display' => [
+                          'en-US' => 'Created'  
+                            
+                     ]
+                        ]
+                );
+                $activity = new TinCan\Activity(
+                    [   'id' => 'http://www.localhost.com/CLAtoolkit/New-gui/twitter-scraper.php',
+                        'definition' => [
+                            'name' => [
+                                'en-US' => 'posted',
+                            ],
+                            'description' => [
+                        'en-US' => 'created a tweet',
+                    ],
+                        ]
+                    ]  
+                        );
+                $res = new TinCan\Result(
+                    [
+                        'response' => $status->text
+                        
+                    ]    
+                        
+                        );
+              
+                $statement = new TinCan\Statement(
+                    [
+                        'actor' => $actor,
+                        'verb'  => $verb,
+                        'object' => $activity,
+                        'result' => $res
+                    ]
+                );
+
+                $response = $lrs->saveStatement($statement);
+                if ($response->success) {
+                    print "Statement sent successfully!\n";
+                }
+                else {
+                    print "Error statement not sent: " . $response->content . "\n";
+                }
 }
 ?>
 <!-- Modal -->
