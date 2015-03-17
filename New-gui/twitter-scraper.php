@@ -83,6 +83,12 @@
           <h4>2. Enter the Twitter ID to Scrape</h4>
           <label for="userID" class="col-sm-4 control-label">Twitter ID</label>
           <input name="userID" type="text" style="width:400px;"/>
+
+        </div>
+        <div class="panel panel-custom">
+          <h4>3. Enter the Hashtag to Scrape</h4>
+          <label for="hashtag" class="col-sm-4 control-label">Hashtag</label>
+          <input name="hashtag" type="text" style="width:400px;"/>
           <input class="btn btn-primary" name="submit" type="submit" value="Scrape!"/>
 
         </div>
@@ -90,7 +96,7 @@
       </form>
 HTML;
 
-          if(!isset($_POST['userID'])){
+          if( (!isset($_POST['userID'])) && (!isset($_POST['hashtag'])) ){
             print $hashtag_form;
             exit;
           }
@@ -118,17 +124,28 @@ $connection = new TwitterOAuth($config);
 $bearer_token = $connection->getBearerToken();
 print $hashtag_form;
 $userName = ($_POST['userID']);
+$hashtag = ($_POST['hashtag']);
 $params = array(
   'screen_name' => $userName,
-  'count' => 1,
+  'count' => 100,
   'exclude_replies' => true,
   );
 $response = $connection->get('statuses/user_timeline', $params);
+//echo '<pre class="array">'; print_r($response); echo '</pre><hr />';
 foreach ($response as $status) {
+    $comment = $status->text;
+    $word_position = strpos($comment, $hashtag);
+  if ($word_position == false)
+  {
+      print "";
+  }
+  else {
+             
   print '<b>Name: </b>'.($status->user->name).'<br>';
+  //print '<pre class="array">'; print_r($status->entities->hashtags); echo '</pre><hr />';
+  //print '<b>hashtag: </b>'.(json_encode($status->entities->hashtags)).'<br><hr>';
   print '<b>Comment: </b>'.($status->text).'<br><hr>';
-
-                            $actor = new TinCan\Agent(
+               $actor = new TinCan\Agent(
                     [ 'mbox' => "rsospring@hotmail.com" ]
                 );
                 $verb = new TinCan\Verb(
@@ -175,6 +192,7 @@ foreach ($response as $status) {
                 else {
                     print "Error statement not sent: " . $response->content . "\n";
                 }
+  }
 }
 ?>
 <!-- Modal -->
