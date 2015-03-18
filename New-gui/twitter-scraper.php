@@ -45,12 +45,6 @@
 
       <?php
       require 'vendor/autoload.php';
-      $lrs = new TinCan\RemoteLRS(
-        'http://transformll-dev.qut.edu.au/data/xAPI/',
-        '1.0.1',
-        'b52015af97c5ed871de667af3dfae243ac670e70',
-        '645dc00980639b83fcdfdcfc83c0f8a6e751f3f0'
-        );
 
 
 
@@ -72,9 +66,15 @@
             </div>
             </div>
             <div class="form-group">
-              <label for="LRSPass" class="col-sm-4 control-label">Enter Main LRS Endpoint</label>
+              <label for="LRSPass" class="col-sm-4 control-label">Enter Main LRS Password</label>
               <div class="col-sm-8">
                 <input type="text" name="LRSPass" id="LRSPass" style="width:400px" >
+              </div>
+            </div>
+               <div class="form-group">
+              <label for="LRSname" class="col-sm-4 control-label">Enter Main LRS account name</label>
+              <div class="col-sm-8">
+                <input type="text" name="LRSname" id="LRSPass" style="width:400px" >
               </div>
             </div>
           </div>
@@ -83,8 +83,8 @@
           <h4>2. Enter the Twitter ID to Scrape</h4>
           <label for="userID" class="col-sm-4 control-label">Twitter ID</label>
           <input name="userID" type="text" style="width:400px;"/>
-
         </div>
+              
         <div class="panel panel-custom">
           <h4>3. Enter the Hashtag to Scrape</h4>
           <label for="hashtag" class="col-sm-4 control-label">Hashtag</label>
@@ -96,7 +96,7 @@
       </form>
 HTML;
 
-          if( (!isset($_POST['userID'])) && (!isset($_POST['hashtag'])) ){
+          if( (!isset($_POST['userID'])) && (!isset($_POST['hashtag'])) && (!isset($_POST['LRSname'])) && (!isset($_POST['LRSEndpoint'])) && (!isset($_POST['LRSUser'])) && (!isset($_POST['LRSPass'])) ){
             print $hashtag_form;
             exit;
           }
@@ -104,6 +104,7 @@ HTML;
           require_once __DIR__ . '/TwitterOAuth/Exception/TwitterException.php';
           use TwitterOAuth\TwitterOAuth;
           date_default_timezone_set('UTC');
+          
           /**
      * Array with the OAuth tokens provided by Twitter when you create application
      * output_format - Optional - Values: text|json|array|object - Default: object
@@ -123,30 +124,42 @@ $connection = new TwitterOAuth($config);
     // more info: https://dev.twitter.com/docs/auth/application-only-auth
 $bearer_token = $connection->getBearerToken();
 print $hashtag_form;
+
+
 $userName = ($_POST['userID']);
 $hashtag = ($_POST['hashtag']);
+$LRSname = ($_POST['LRSname']);
+$LRSEndpoint = ($_POST['LRSEndpoint']);
+$LRSUser = ($_POST['LRSUser']);
+$LRSPass = ($_POST['LRSPass']);
+
+// Twitter search paramaters
 $params = array(
   'screen_name' => $userName,
   'count' => 100,
   'exclude_replies' => true,
   );
+
+// Connecting to specific twitter api function
 $response = $connection->get('statuses/user_timeline', $params);
-//echo '<pre class="array">'; print_r($response); echo '</pre><hr />';
+
+// Looping throught each post of twitter account
 foreach ($response as $status) {
-    $comment = $status->text;
-    $word_position = strpos($comment, $hashtag);
-  if ($word_position == false)
-  {
-      print "";
-  }
-  else {
+if (strpos($status->text, $hashtag) !== false) { // checking if the posts contain provided hashtag
              
   print '<b>Name: </b>'.($status->user->name).'<br>';
-  //print '<pre class="array">'; print_r($status->entities->hashtags); echo '</pre><hr />';
-  //print '<b>hashtag: </b>'.(json_encode($status->entities->hashtags)).'<br><hr>';
+  print '<b>Date Posted: </b>'.($status->created_at).'<br>';
   print '<b>Comment: </b>'.($status->text).'<br><hr>';
+
+ // sending posts to LRS
+        $lrs = new TinCan\RemoteLRS(
+        $LRSEndpoint,
+        '1.0.1',
+        $LRSUser,
+        $LRSPass
+        );
                $actor = new TinCan\Agent(
-                    [ 'mbox' => "rsospring@hotmail.com" ]
+                    [ 'mbox' => $LRSname ]
                 );
                 $verb = new TinCan\Verb(
                     [ 'id' => 'http://activitystrea.ms/schema/1.0/created',
@@ -192,6 +205,9 @@ foreach ($response as $status) {
                 else {
                     print "Error statement not sent: " . $response->content . "\n";
                 }
+  }
+  else{
+    print  "";
   }
 }
 ?>
