@@ -45,9 +45,29 @@
 
       <?php
       require 'vendor/autoload.php';
+      
+            $username = "root";
+            $password = "";
+            $hostname = "localhost"; 
 
+            //connection to the database
+            $dbhandle = mysql_connect($hostname, $username, $password) 
+              or die("Unable to connect to MySQL");
+            echo "Connected to MySQL<br>";
+            //select a database to work with
+            $selected = mysql_select_db("twitter",$dbhandle) 
+              or die("Could not select twitter");
+            
+            $result = mysql_query("SELECT * FROM timestamp;");
+            $row = mysql_fetch_array($result) or die(mysql_error());
 
+                
+               $timestamp = $row['time'];
+               $ID = $row["ID"];
+            
+            
 
+// start of the form 
       $hashtag_form = <<<HTML
 
       <form class="form-horizontal" method="post">
@@ -95,7 +115,8 @@
 
       </form>
 HTML;
-
+      
+// checks if the form information has been filed 
           if( (!isset($_POST['userID'])) && (!isset($_POST['hashtag'])) && (!isset($_POST['LRSname'])) && (!isset($_POST['LRSEndpoint'])) && (!isset($_POST['LRSUser'])) && (!isset($_POST['LRSPass'])) ){
             print $hashtag_form;
             exit;
@@ -123,9 +144,9 @@ $connection = new TwitterOAuth($config);
     // Get an application-only token
     // more info: https://dev.twitter.com/docs/auth/application-only-auth
 $bearer_token = $connection->getBearerToken();
-print $hashtag_form;
+    print $hashtag_form;
 
-
+// defining post variables for the forms
 $userName = ($_POST['userID']);
 $hashtag = ($_POST['hashtag']);
 $LRSname = ($_POST['LRSname']);
@@ -142,21 +163,24 @@ $params = array(
 
 // Connecting to specific twitter api function
 $response = $connection->get('statuses/user_timeline', $params);
-
+$reversed = array_reverse($response); // reverse the array to make sure the database information is updated with the correct data.
 // Looping throught each post of twitter account
-foreach ($response as $status) {
-if (strpos($status->text, $hashtag) !== false) { // checking if the posts contain provided hashtag
-             
-  print '<b>Name: </b>'.($status->user->name).'<br>';
-  print '<b>Date Posted: </b>'.($status->created_at).'<br>';
-  print '<b>Comment: </b>'.($status->text).'<br><hr>';
-
+$sql = mysql_query("INSERT INTO timestamp (twittername, hashtag) VALUES ('$userName', '$hashtag')");
+foreach ($reversed as $status) {
+    
+    $date = ($status->created_at);
+    if ( strtotime($timestamp) < strtotime($date)){
+        if (strpos($status->text, $hashtag) !== false) { // checking if the posts contain provided hashtag 
+            print '<b>Name: </b>'.($status->user->name).'<br>'; // Name of Poster
+            print '<b>Date Posted: </b>'.date('d-m-Y H:i:s', strtotime(($date))).'<br>'; // Date of post
+            print '<b>Comment: </b>'.($status->text).'<br><hr>'; // COnetent of post
+                $result = mysql_query("UPDATE timestamp SET time='$date' WHERE ID=$ID");// updates the databse timestamp
  // sending posts to LRS
         $lrs = new TinCan\RemoteLRS(
-        $LRSEndpoint,
-        '1.0.1',
-        $LRSUser,
-        $LRSPass
+        $LRSEndpoint, // LRS endpoint
+        '1.0.1', // version
+        $LRSUser, // LRS UserName
+        $LRSPass// LRS Password
         );
                $actor = new TinCan\Agent(
                     [ 'mbox' => $LRSname ]
@@ -209,7 +233,9 @@ if (strpos($status->text, $hashtag) !== false) { // checking if the posts contai
   else{
     print  "";
   }
+    }
 }
+
 ?>
 <!-- Modal -->
 <div class="modal fade" id="twitter-help" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
