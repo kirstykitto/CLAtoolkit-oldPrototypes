@@ -37,7 +37,7 @@
   <!-- Import Universal Header -->
   <div id="header"></div>
     <script>
-      $("#header").load("claheader.html"); 
+      $("#header").load("claheader.html");
     </script>
 
     <div class="container">
@@ -45,29 +45,21 @@
 
       <?php
       require 'vendor/autoload.php';
-      
+
             $username = "root";
             $password = "";
-            $hostname = "localhost"; 
+            $hostname = "localhost";
 
             //connection to the database
-            $dbhandle = mysql_connect($hostname, $username, $password) 
+            $dbhandle = mysql_connect($hostname, $username, $password)
               or die("Unable to connect to MySQL");
             echo "Connected to MySQL<br>";
             //select a database to work with
-            $selected = mysql_select_db("twitter",$dbhandle) 
+            $selected = mysql_select_db("twitter",$dbhandle)
               or die("Could not select twitter");
-            
-            $result = mysql_query("SELECT * FROM timestamp;");
-            $row = mysql_fetch_array($result) or die(mysql_error());
 
-                
-               $timestamp = $row['time'];
-               $ID = $row["ID"];
-            
-            
 
-// start of the form 
+// start of the form
       $hashtag_form = <<<HTML
 
       <form class="form-horizontal" method="post">
@@ -104,7 +96,7 @@
           <label for="userID" class="col-sm-4 control-label">Twitter ID</label>
           <input name="userID" type="text" style="width:400px;"/>
         </div>
-              
+
         <div class="panel panel-custom">
           <h4>3. Enter the Hashtag to Scrape</h4>
           <label for="hashtag" class="col-sm-4 control-label">Hashtag</label>
@@ -115,8 +107,8 @@
 
       </form>
 HTML;
-      
-// checks if the form information has been filed 
+
+// checks if the form information has been filed
           if( (!isset($_POST['userID'])) && (!isset($_POST['hashtag'])) && (!isset($_POST['LRSname'])) && (!isset($_POST['LRSEndpoint'])) && (!isset($_POST['LRSUser'])) && (!isset($_POST['LRSPass'])) ){
             print $hashtag_form;
             exit;
@@ -125,7 +117,7 @@ HTML;
           require_once __DIR__ . '/TwitterOAuth/Exception/TwitterException.php';
           use TwitterOAuth\TwitterOAuth;
           date_default_timezone_set('UTC');
-          
+
           /**
      * Array with the OAuth tokens provided by Twitter when you create application
      * output_format - Optional - Values: text|json|array|object - Default: object
@@ -154,42 +146,56 @@ $LRSEndpoint = ($_POST['LRSEndpoint']);
 $LRSUser = ($_POST['LRSUser']);
 $LRSPass = ($_POST['LRSPass']);
 
+            $result = mysql_query("SELECT * FROM timestamp");
+            $row = mysql_fetch_array($result) or die(mysql_error());
+
 // Twitter search paramaters
 $params = array(
   'screen_name' => $userName,
-  'count' => 100,
-  'exclude_replies' => true,
+  'count' => 180,
+  'exclude_replies' => false,
+  'include_rts' => true,
   );
 
 // Connecting to specific twitter api function
 $response = $connection->get('statuses/user_timeline', $params);
 $reversed = array_reverse($response); // reverse the array to make sure the database information is updated with the correct data.
+
+               $timestamp = $row['time'];
+               $ID = $row["ID"];
 // Looping throught each post of twitter account
-$sql = mysql_query("INSERT INTO timestamp (twittername, hashtag) VALUES ('$userName', '$hashtag')");
+
 foreach ($reversed as $status) {
-    
+
     $date = ($status->created_at);
     if ( strtotime($timestamp) < strtotime($date)){
-        if (strpos($status->text, $hashtag) !== false) { // checking if the posts contain provided hashtag 
-            print '<b>Name: </b>'.($status->user->name).'<br>'; // Name of Poster
-            print '<b>Date Posted: </b>'.date('d-m-Y H:i:s', strtotime(($date))).'<br>'; // Date of post
-            print '<b>Comment: </b>'.($status->text).'<br><hr>'; // COnetent of post
-                $result = mysql_query("UPDATE timestamp SET time='$date' WHERE ID=$ID");// updates the databse timestamp
- // sending posts to LRS
+        if (strpos($status->text, $hashtag) !== false) { // checking if the posts contain provided hashtag
+
+            if($status->retweeted_status  == null){ // checking if a retweet
+                print '<hr><b>Name: </b>'.($status->user->name).'<br>'; // Name of Poster
+                print '<b>Date Posted: </b>'.date('d-m-Y H:i:s', strtotime(($date))).'<br>'; // Date of post
+                print '<b>Comment: </b>'.($status->text).'<br>'; // COnetent of post
+                //$result = mysql_query("UPDATE timestamp SET time='$date' WHERE twittername=$userName");// updates the databse timestamp
+
+
+
         $lrs = new TinCan\RemoteLRS(
         $LRSEndpoint, // LRS endpoint
         '1.0.1', // version
         $LRSUser, // LRS UserName
         $LRSPass// LRS Password
         );
+
+ // sending posts to LRS
+
                $actor = new TinCan\Agent(
                     [ 'mbox' => $LRSname ]
                 );
                 $verb = new TinCan\Verb(
                     [ 'id' => 'http://activitystrea.ms/schema/1.0/created',
                         'display' => [
-                          'en-US' => 'Created'  
-                            
+                          'en-US' => 'Created'
+
                      ]
                         ]
                 );
@@ -203,16 +209,16 @@ foreach ($reversed as $status) {
                         'en-US' => 'created a tweet',
                     ],
                         ]
-                    ]  
+                    ]
                         );
                 $res = new TinCan\Result(
                     [
                         'response' => $status->text
-                        
-                    ]    
-                        
+
+                    ]
+
                         );
-              
+
                 $statement = new TinCan\Statement(
                     [
                         'actor' => $actor,
@@ -230,9 +236,72 @@ foreach ($reversed as $status) {
                     print "Error statement not sent: " . $response->content . "\n";
                 }
   }
-  else{
-    print  "";
-  }
+
+ else {
+
+                print '<hr><b>Name: </b>'.($status->user->name).'<br>'; // Name of Poster
+                print '<b>Date Posted: </b>'.date('d-m-Y H:i:s', strtotime(($date))).'<br>'; // Date of post
+                print '<b>Comment: </b>'.($status->text).'<br>'; // COnetent of post
+
+                $lrs = new TinCan\RemoteLRS(
+        $LRSEndpoint, // LRS endpoint
+        '1.0.1', // version
+        $LRSUser, // LRS UserName
+        $LRSPass// LRS Password
+        );
+
+ // sending posts to LRS
+
+               $actor = new TinCan\Agent(
+                    [ 'mbox' => $LRSname ]
+                );
+                $verb = new TinCan\Verb(
+                    [ 'id' => 'http://activitystrea.ms/schema/1.0/share',
+                        'display' => [
+                          'en-US' => 'Share'
+
+                     ]
+                        ]
+                );
+                $activity = new TinCan\Activity(
+                    [   'id' => "https://twitter.com/statuses/".$status->id_str,
+                        'definition' => [
+                            'name' => [
+                                'en-US' => 'retweet',
+                            ],
+                            'description' => [
+                        'en-US' => 'retweeted a tweet',
+                    ],
+                        ]
+                    ]
+                        );
+                $res = new TinCan\Result(
+                    [
+                        'response' => $status->text
+
+                    ]
+
+                        );
+
+                $statement = new TinCan\Statement(
+                    [
+                        'actor' => $actor,
+                        'verb'  => $verb,
+                        'object' => $activity,
+                        'result' => $res
+                    ]
+                );
+
+                $response = $lrs->saveStatement($statement);
+                if ($response->success) {
+                    print "Statement sent successfully!\n";
+                }
+                else {
+                    print "Error statement not sent: " . $response->content . "\n";
+                }
+
+            }
+        }
     }
 }
 
@@ -286,7 +355,7 @@ $('#rootwizard').bootstrapWizard({
       return false;
     }
   }
-}); 
+});
 });
 </script>
 
